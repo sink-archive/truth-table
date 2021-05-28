@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 
@@ -7,23 +8,18 @@ namespace TruthTable
 {
 	public static class Randomizer
 	{
-		public static void Randomize<T>(ref T item)
-		{
-			var rand = new Random();
-			Randomize(ref item, ref rand);
-		}
-		public static void Randomize<T>(ref T item, ref Random randInstance)
+		private static void RandomizeClass<T>(ref T item, ref Random randInstance)
 		{
 			var type   = typeof(T);
 			var vars   = type.GetMembers().Where(m => m.MemberType is MemberTypes.Field or MemberTypes.Property).ToArray();
 			var fields = vars.Where(m => m.MemberType == MemberTypes.Field).Select(m => (FieldInfo) m).ToArray();
 			var props  = vars.Where(m => m.MemberType == MemberTypes.Property).Select(m => (PropertyInfo) m).ToArray();
 			
-			foreach (var field in fields) field.SetValue(item, RandomValue(field.FieldType, ref randInstance));
-			foreach (var prop in props) prop.SetValue(item, RandomValue(prop.PropertyType, ref randInstance));
+			foreach (var field in fields) field.SetValue(item, Randomize(field.FieldType, ref randInstance));
+			foreach (var prop in props) prop.SetValue(item, Randomize(prop.PropertyType, ref randInstance));
 		}
 
-		private static object? RandomValue(Type type, ref Random randInstance)
+		public static object? Randomize(Type type, ref Random randInstance)
 		{
 			switch (type.FullName)
 			{
@@ -45,11 +41,11 @@ namespace TruthTable
 
 					return chars.Aggregate(string.Empty, (current, next) => current + next);
 				case "System.Boolean":
-					return randInstance.Next(1) == 1;
+					return randInstance.Next(2) == 1;
 				default:
 					// Assuming a class or struct
-					if (TryMakeNew(type, out var obj)) break;
-					Randomize(ref obj, ref randInstance);
+					if (!TryMakeNew(type, out var obj)) break;
+					RandomizeClass(ref obj, ref randInstance);
 					return obj;
 			}
 
@@ -58,12 +54,16 @@ namespace TruthTable
 
 		public static bool TryMakeNew(Type type, out object? obj)
 		{
-			obj = new object();
-			var constructor = type.GetConstructor(Type.EmptyTypes);
-			if (constructor == null)
+			try
+			{
+				obj = Activator.CreateInstance(type);
 				return true;
-			obj = constructor.Invoke(Array.Empty<object>());
-			return false;
+			}
+			catch (Exception)
+			{
+				obj = null;
+				return false;
+			}
 		}
 	}
 }

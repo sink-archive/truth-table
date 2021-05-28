@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using NUnit.Framework;
 
 namespace TruthTable.Tests
@@ -33,6 +35,17 @@ namespace TruthTable.Tests
 			//TruthTester.ComboRecurse(arrays, ref recurseLevel);
 
 			Assert.Pass();
+		}
+
+		[Test]
+		public void Test2()
+		{
+			// complex enough to hopefully test a little :)
+			//    /-parameter types  /-return type
+			Func<bool, string, int, int> TestFunc =
+				(testBool, testString, testInt) => testBool ? testString.Length : testInt * 2;
+
+			var results = TruthTester.TestTruth(TestFunc, 5);
 		}
 	}
 }
