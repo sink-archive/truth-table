@@ -14,13 +14,23 @@ namespace TruthTable
 		/// </summary>
 		/// <param name="toTest">The function to test</param>
 		/// <param name="caseLimit">When generating test cases, what the maximum amount to generate is PER PARAMATER</param>
-		public void TestTruth(Delegate toTest, int caseLimit)
+		public object[] TestTruth(Delegate toTest, int caseLimit)
 		{
+			// get parameters of the method
 			var parameters = toTest.Method.GetParameters().ToDictionary(p => p, _ => Array.Empty<object>());
+			// generate some random values for the params
 			foreach (var param in parameters.Keys)
 				parameters[param] = GenerateValues(param.ParameterType, caseLimit);
-			
-			
+
+			// dictionary to array in preparation
+			var possibleParameters = parameters.Select(p => p.Value).ToArray();
+			// generate all possible combinations of parameter values
+			var combos = ComboEntry(possibleParameters);
+
+			// test 'em all!!!!
+			var results = combos.Select(combo => toTest.Method.Invoke(toTest.Target, combo)).ToArray();
+
+			return results;
 		}
 
 		private static object[][] ComboEntry(object[][] inputArrays)
