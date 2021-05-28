@@ -23,7 +23,7 @@ namespace TruthTable
 			
 		}
 
-		private static object[][] MakeCombos(object[][] inputArrays)
+		private static object[][] ComboEntry(object[][] inputArrays)
 		{
 			// make some lists :)
 
@@ -32,6 +32,9 @@ namespace TruthTable
 			return ComboRecurse(inputArrays, ref recurseLevel);
 		}
 
+		/// <summary>
+		/// If you're calling this anywhere that isn't ComboEntry YOURE DOING SOMETHING WRONG, DO NOT USE!!!!
+		/// </summary>
 		private static object[][] ComboRecurse(object[][] inputArrays, ref int recurseLevel)
 		{
 			// keep track of recursion
