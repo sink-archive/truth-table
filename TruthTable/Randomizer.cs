@@ -54,6 +54,13 @@ namespace TruthTable
 
 		public static bool TryMakeNew(Type type, out object? obj)
 		{
+			// special cases :)
+			if (type == typeof(string))
+			{
+				obj = string.Empty;
+				return true;
+			}
+
 			try
 			{
 				obj = Activator.CreateInstance(type);
