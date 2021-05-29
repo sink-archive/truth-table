@@ -1,6 +1,5 @@
 #nullable enable
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 
@@ -8,9 +7,9 @@ namespace TruthTable
 {
 	public static class Randomizer
 	{
-		private static void RandomizeClass<T>(ref T item, ref Random randInstance)
+		private static void RandomizeClass(ref object item, ref Random randInstance)
 		{
-			var type   = typeof(T);
+			var type   = item.GetType();
 			var vars   = type.GetMembers().Where(m => m.MemberType is MemberTypes.Field or MemberTypes.Property).ToArray();
 			var fields = vars.Where(m => m.MemberType == MemberTypes.Field).Select(m => (FieldInfo) m).ToArray();
 			var props  = vars.Where(m => m.MemberType == MemberTypes.Property).Select(m => (PropertyInfo) m).ToArray();
@@ -31,7 +30,10 @@ namespace TruthTable
 				case "System.Single":
 				case "System.Double":
 				case "System.Decimal":
+					// no its not overcomplicated i want some actually interesting random numbers :P
 					return (randInstance.Next() + randInstance.NextDouble()) * (randInstance.Next() + randInstance.NextDouble());
+				case "System.Char":
+					return (char) randInstance.Next();
 				case "System.String":
 					const int stringLength = 128;
 					var       chars        = new char [stringLength];
