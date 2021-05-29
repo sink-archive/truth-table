@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -98,25 +99,8 @@ namespace TruthTable
 			method = method.MakeGenericMethod(type);
 			var rawReturnValue = method.Invoke(null, new object[] {caseLimit});
 			var noTypeArray    = (Array) rawReturnValue;
-			var objArray       = noTypeArray.ArrayToObjectArray(type);
+			var objArray       = noTypeArray!.Cast<object>().ToArray();
 			return objArray;
-		}
-
-		private static object[] ArrayToObjectArray(this Array array, Type arrayType)
-		{
-			var method = typeof(Array)
-						.GetMethods(BindingFlags.NonPublic
-								  | BindingFlags.Public 
-								  | BindingFlags.Static 
-								  | BindingFlags.FlattenHierarchy)
-						.First(m => m.Name == "ConvertAll");
-			method = method.MakeGenericMethod(arrayType, typeof(object));
-			return (object[]) method.Invoke(null, new[] { array, CreateConverterToObject(arrayType) });
-		}
-
-		private static object CreateConverterToObject(Type inType)
-		{
-			Func<object, object> func = i => (object) i;
 		}
 
 		// ReSharper disable once UnusedMember.Local
