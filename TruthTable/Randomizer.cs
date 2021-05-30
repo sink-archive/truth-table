@@ -56,13 +56,47 @@ namespace TruthTable
 
 		public static bool TryMakeNew(Type type, out object? obj)
 		{
-			// special cases :)
+			obj = null;
+
+			return TrySpecialCases(type, out obj)
+				|| TryConstructor(type, out obj)
+				|| TryActivator(type, out obj);
+		}
+
+		private static bool TrySpecialCases(Type type, out object? obj)
+		{
+			obj = null;
+			
 			if (type == typeof(string))
 			{
 				obj = string.Empty;
 				return true;
 			}
+			
+			return false;
+		}
 
+		private static bool TryConstructor(Type type, out object? obj)
+		{
+			obj = null;
+
+			try
+			{
+				obj = type.GetConstructors()
+						  .First(c => c.GetParameters().Length == 0)
+						  .Invoke(null);
+				return true;
+			}
+			catch (Exception)
+			{
+				return false;
+			}
+		}
+		
+		private static bool TryActivator(Type type, out object? obj)
+		{
+			obj = null;
+			
 			try
 			{
 				obj = Activator.CreateInstance(type);
@@ -70,7 +104,6 @@ namespace TruthTable
 			}
 			catch (Exception)
 			{
-				obj = null;
 				return false;
 			}
 		}
