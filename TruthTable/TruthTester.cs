@@ -29,10 +29,8 @@ namespace TruthTable
 
 			// test 'em all!!!!
 			var results = combos
-						 .Select(combo => 
-									 (combo,
-									  toTest.Method.Invoke(toTest.Target, combo)
-									  ))
+						 .Select(combo => (combo,
+										   toTest.Method.Invoke(toTest.Target, combo)))
 						 .ToArray();
 
 			return results;
@@ -41,9 +39,7 @@ namespace TruthTable
 		private static object[][] ComboEntry(object[][] inputArrays)
 		{
 			// make some lists :)
-
 			var recurseLevel = -1;
-
 			return ComboRecurse(inputArrays, ref recurseLevel);
 		}
 
@@ -88,6 +84,7 @@ namespace TruthTable
 
 		private static object[] GenerateValues(Type type, int caseLimit)
 		{
+			// get the method we need
 			var method = typeof(TruthTester)
 						.GetMethods(BindingFlags.NonPublic
 								  | BindingFlags.Public 
@@ -95,21 +92,23 @@ namespace TruthTable
 								  | BindingFlags.FlattenHierarchy)
 						.First(m => m.Name == "GenerateValuesGeneric");
 
+			// apply the type params
 			method = method.MakeGenericMethod(type);
-			var rawReturnValue = method.Invoke(null, new object[] {caseLimit});
-			var noTypeArray    = (Array) rawReturnValue;
-			var objArray       = noTypeArray!.Cast<object>().ToArray();
-			return objArray;
+			
+			// call it and get the correct type for the return value
+			return (object[]) method.Invoke(null, new object[] {caseLimit});
 		}
 
 		// ReSharper disable once UnusedMember.Local
-		private static T[] GenerateValuesGeneric<T>(int caseLimit)
+		private static object[] GenerateValuesGeneric<T>(int caseLimit)
 		{
+			// setup
 			var randInstance = new Random();
-			var working      = new List<T>();
+			var working      = new List<object>();
+			// generate values until we hit the limit or are done
 			for (var i = 0; i < caseLimit; i++)
 			{
-				var item = GenerateValue(caseLimit, ref randInstance, working, out var done);
+				var item = GenerateValue<T>(caseLimit, ref randInstance, working, out var done);
 				if (done) break;
 				working.Add(item);
 			}
@@ -117,13 +116,17 @@ namespace TruthTable
 			return working.ToArray();
 		}
 
-		private static T GenerateValue<T>(int      caseLimit, ref Random randInstance, IEnumerable<T> previousItems,
+		private static T GenerateValue<T>(int      caseLimit, ref Random randInstance, IEnumerable<object> previousItems,
 										  out bool done)
 		{
 			done = false;
+			
+			// ask for a new instance of the object, if fails return default.
 			if (!Randomizer.TryMakeNew(typeof(T), out var randomItem))
 				return default;
 			var count = 0;
+			
+			// get random values until we hit caseLimit with no duplicates
 			// ReSharper disable once PossibleMultipleEnumeration
 			while (previousItems.Contains((T) randomItem) || count == 0)
 			{
