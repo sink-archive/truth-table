@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TruthTable", "TruthTable\Tr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TruthTable.Tests", "TruthTable.Tests\TruthTable.Tests.csproj", "{3FCE0A3D-1763-46E2-A5AB-AAE0F33D98B7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TruthTable.Cli", "TruthTable.Cli\TruthTable.Cli.csproj", "{C6C3EBE6-7292-405F-AA2C-C3267183B609}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,5 +46,17 @@ Global
 		{3FCE0A3D-1763-46E2-A5AB-AAE0F33D98B7}.Release|x64.Build.0 = Release|Any CPU
 		{3FCE0A3D-1763-46E2-A5AB-AAE0F33D98B7}.Release|x86.ActiveCfg = Release|Any CPU
 		{3FCE0A3D-1763-46E2-A5AB-AAE0F33D98B7}.Release|x86.Build.0 = Release|Any CPU
+		{C6C3EBE6-7292-405F-AA2C-C3267183B609}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6C3EBE6-7292-405F-AA2C-C3267183B609}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6C3EBE6-7292-405F-AA2C-C3267183B609}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C6C3EBE6-7292-405F-AA2C-C3267183B609}.Debug|x64.Build.0 = Debug|Any CPU
+		{C6C3EBE6-7292-405F-AA2C-C3267183B609}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C6C3EBE6-7292-405F-AA2C-C3267183B609}.Debug|x86.Build.0 = Debug|Any CPU
+		{C6C3EBE6-7292-405F-AA2C-C3267183B609}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6C3EBE6-7292-405F-AA2C-C3267183B609}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6C3EBE6-7292-405F-AA2C-C3267183B609}.Release|x64.ActiveCfg = Release|Any CPU
+		{C6C3EBE6-7292-405F-AA2C-C3267183B609}.Release|x64.Build.0 = Release|Any CPU
+		{C6C3EBE6-7292-405F-AA2C-C3267183B609}.Release|x86.ActiveCfg = Release|Any CPU
+		{C6C3EBE6-7292-405F-AA2C-C3267183B609}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
