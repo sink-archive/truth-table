@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 
@@ -9,54 +10,46 @@ namespace TruthTable.Tests
 		[Test]
 		public void LogicalXorTest()
 		{
+			static KeyValuePair<string, object> p(string a, object b) => new(a, b);
+
 			Func<bool, bool, bool> func = (a, b) => a ^ b;
 
 			var actual = TruthTester.TestTruth(func, 999);
 
-			var expected = new[]
+			var expectedParams = new[]
 			{
-				new Result
-				{
-					Inputs = new()
-					{
-						{ "a", false }, { "b", false }
-					},
-					Output = false
-				},
-				new Result
-				{
-					Inputs = new()
-					{
-						{ "a", false }, { "b", true }
-					},
-					Output = true
-				},
-				new Result
-				{
-					Inputs = new()
-					{
-						{ "a", true }, { "b", false }
-					},
-					Output = true
-				},
-				new Result
-				{
-					Inputs = new()
-					{
-						{ "a", false }, { "b", false }
-					},
-					Output = false
-				}
+				new[] { p("a", false), p("b", false) },
+				new[] { p("a", false), p("b", true)  },
+				new[] { p("a", true),  p("b", false) },
+				new[] { p("a", true),  p("b", true)  }
 			};
 
+			var expectedResults = new object[] { false, true, true, false };
+
 			// check that all results are in the array
-			foreach (var item in actual.ResultArray) Assert.Contains(item, expected);
-			// check that all in array are in the results
-			foreach (var item in expected) Assert.Contains(item, actual.ResultArray);
-			
+			foreach (var item in actual.ResultArray)
+			{
+				var index = FindIndexSeq(expectedParams, item.Inputs);
+				Assert.AreEqual(expectedParams[index], item.Inputs.ToArray());
+				Assert.AreEqual(expectedResults[index], item.Output);
+			}
+
 			// check that names are correct because why not
 			Assert.AreEqual(new [] {"a", "b"},
 							actual.AllInputNames.OrderBy(s => s).ToArray());
+		}
+
+		private static int FindIndexSeq<T>(IEnumerable<IEnumerable<T>> collection, IEnumerable<T> item)
+		{
+			var array = collection as IEnumerable<T>[] ?? collection.ToArray();
+			var itemArr = item as T[] ?? item.ToArray();
+			for (var i = 0; i < array.Length; i++)
+			{
+				if (itemArr.SequenceEqual(array[i]))
+					return i;
+			}
+
+			return -1;
 		}
 
 		[Test]
