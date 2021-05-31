@@ -14,33 +14,46 @@ namespace TruthTable
 		/// </summary>
 		/// <param name="toTest">The function to test</param>
 		/// <param name="caseLimit">When generating test cases, what the maximum amount to generate is PER PARAMATER</param>
-		public static (object[], object)[] TestTruth(Delegate toTest, int caseLimit)
+		public static Results TestTruth(Delegate toTest, int caseLimit = 3)
 		{
 			// get parameters of the method
-			var parameters = toTest.Method.GetParameters().ToDictionary(p => p, _ => Array.Empty<object>());
+			var parameters = toTest.Method.GetParameters().ToDictionary(p => p, p => new RandomizedParam { Param = p });
 			// generate some random values for the params
 			foreach (var param in parameters.Keys)
-				parameters[param] = GenerateValues(param.ParameterType, caseLimit).Select(o => o).ToArray();
-
-			// dictionary to array in preparation
-			var possibleParameters = parameters.Select(p => p.Value).ToArray();
+				parameters[param].RandomValues = GenerateValues(param.ParameterType, caseLimit).Select(o => o).ToArray();
+			
 			// generate all possible combinations of parameter values
-			var combos = ComboEntry(possibleParameters);
+			var combos = ComboEntry(parameters);
 
 			// test 'em all!!!!
-			var results = combos
-						 .Select(combo => (combo,
-										   toTest.Method.Invoke(toTest.Target, combo)))
-						 .ToArray();
+			// this is where query syntax (from x in y select z) beats API syntax y.Select(y => z),
+			// mainly because you can define variables with let
+			var results = (from c in combos
+						   let paramValues = c.Select(p => p.Item2).ToArray()
+						   let paramInfos = c.Select(p => p.Item1).ToArray()
+						   let result = toTest.Method.Invoke(toTest.Target, paramValues)
+						   select new Result
+						   {
+							   Inputs = paramInfos.Zip(paramValues).ToDictionary(t => t.First.Name, t => t.Second),
+							   Output = result
+						   }).ToArray();
 
-			return results;
+			return new Results { ResultArray = results };
 		}
 
-		private static object[][] ComboEntry(object[][] inputArrays)
+		private static (ParameterInfo, object)[][] ComboEntry(Dictionary<ParameterInfo, RandomizedParam> inputParams)
 		{
 			// make some lists :)
 			var recurseLevel = -1;
-			return ComboRecurse(inputArrays, ref recurseLevel);
+			
+			// convert to object[][]
+			var paramInfos   = inputParams.Keys;
+			var objectArrays = inputParams.Select(p => p.Value.RandomValues).ToArray();
+			
+			var combos = ComboRecurse(objectArrays, ref recurseLevel);
+			
+			// convert back
+			return combos.Select(c => paramInfos.Zip(c).ToArray()).ToArray();
 		}
 
 		/// <summary>

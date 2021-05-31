@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 
 namespace TruthTable.Tests
@@ -7,21 +7,56 @@ namespace TruthTable.Tests
 	public class TruthTesterTests
 	{
 		[Test]
-		public void LogicalAndTest()
+		public void LogicalXorTest()
 		{
-			Func<bool, bool, bool> func = (a, b) => a && b;
+			Func<bool, bool, bool> func = (a, b) => a ^ b;
 
 			var actual = TruthTester.TestTruth(func, 999);
 
-			var expected = new HashSet<(object[], object)>
+			var expected = new[]
 			{
-				(new object[] {false, false}, false),
-				(new object[] {false, true},  false),
-				(new object[] {true,  false}, false),
-				(new object[] {true,  true},  true)
+				new Result
+				{
+					Inputs = new()
+					{
+						{ "a", false }, { "b", false }
+					},
+					Output = false
+				},
+				new Result
+				{
+					Inputs = new()
+					{
+						{ "a", false }, { "b", true }
+					},
+					Output = true
+				},
+				new Result
+				{
+					Inputs = new()
+					{
+						{ "a", true }, { "b", false }
+					},
+					Output = true
+				},
+				new Result
+				{
+					Inputs = new()
+					{
+						{ "a", false }, { "b", false }
+					},
+					Output = false
+				}
 			};
 
-			foreach (var item in actual) Assert.Contains(item, actual);
+			// check that all results are in the array
+			foreach (var item in actual.ResultArray) Assert.Contains(item, expected);
+			// check that all in array are in the results
+			foreach (var item in expected) Assert.Contains(item, actual.ResultArray);
+			
+			// check that names are correct because why not
+			Assert.AreEqual(new [] {"a", "b"},
+							actual.AllInputNames.OrderBy(s => s).ToArray());
 		}
 
 		[Test]
@@ -31,12 +66,20 @@ namespace TruthTable.Tests
 
 			var actual = TruthTester.TestTruth(func, 5);
 
-			foreach (var (args, result) in actual)
+			foreach (var result in actual.ResultArray)
 			{
-				var a = (int) args[0];
-				var b = (string) args[1];
-				var c = (bool) args[2];
-				Assert.AreEqual(func(a, b, c), (int) result);
+				var (args, output) = (result.Inputs.ToArray(), result.Output);
+				// check names
+				Assert.AreEqual("a", args[0].Key);
+				Assert.AreEqual("b", args[1].Key);
+				Assert.AreEqual("c", args[2].Key);
+				// check result type
+				Assert.AreEqual(typeof(int), output.GetType());
+				// check output
+				var a = (int) args[0].Value;
+				var b = (string) args[1].Value;
+				var c = (bool) args[2].Value;
+				Assert.AreEqual(func(a, b, c), (int) output);
 			}
 		}
 	}
