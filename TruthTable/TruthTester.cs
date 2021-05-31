@@ -126,7 +126,7 @@ namespace TruthTable
 				working.Add(item);
 			}
 
-			return working.ToArray();
+			return working.OrderBy(v => v).ToArray();
 		}
 
 		private static T GenerateValue<T>(int      caseLimit, ref Random randInstance, IEnumerable<object> previousItems,
