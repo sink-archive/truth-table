@@ -13,8 +13,8 @@ namespace TruthTable.Cli
 				Console.WriteLine("Please enter a logic function: ");
 				rawFunc = Console.ReadLine();
 			}
-			
-			// TODO: The rest of CLI
+
+			var parsed = StringParser.Parse(rawFunc, out var isLambda);
 		}
 	}
 }
