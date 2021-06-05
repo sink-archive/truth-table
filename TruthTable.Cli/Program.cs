@@ -15,6 +15,8 @@ namespace TruthTable.Cli
 			}
 
 			var parsed = StringParser.Parse(rawFunc, out var isLambda);
+
+			var tree = TreeBuilder.GenerateTree(parsed.Nodes);
 		}
 	}
 }
