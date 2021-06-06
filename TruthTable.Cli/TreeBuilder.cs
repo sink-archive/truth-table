@@ -140,12 +140,13 @@ namespace TruthTable.Cli
 
 			public void ToLiteralNode(string paramName) => _paramName = paramName;
 
-			public bool GetValue(Dictionary<string, bool?> @params)
+			public bool GetValue(Dictionary<string, bool> @params)
 			{
 				// ReSharper disable once PossibleInvalidOperationException
-				return @params.TryGetValue(_paramName, out var result)
-					? result.Value
-					: Operation switch
+				return @params
+					  .ToDictionary(p => p.Key, p => (bool?)p.Value)
+					  .GetValueOrDefault(_paramName ?? string.Empty, null)
+					?? Operation switch
 					{
 						Operations.NOT  => !LeftNode.GetValue(@params),
 						Operations.OR   => LeftNode.GetValue(@params) || RightNode.GetValue(@params),

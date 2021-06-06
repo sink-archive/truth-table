@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
-//[assembly:InternalsVisibleTo("TruthTable.Tests")]
+[assembly:InternalsVisibleTo("TruthTable.Cli")]
 
 namespace TruthTable
 {
@@ -59,7 +60,8 @@ namespace TruthTable
 		/// <summary>
 		/// If you're calling this anywhere that isn't ComboEntry YOURE DOING SOMETHING WRONG, DO NOT USE!!!!
 		/// </summary>
-		private static object[][] ComboRecurse(object[][] inputArrays, ref int recurseLevel)
+		// internal so that the CLI project can use this.
+		internal static object[][] ComboRecurse(object[][] inputArrays, ref int recurseLevel)
 		{
 			// keep track of recursion
 			recurseLevel++;
@@ -95,7 +97,7 @@ namespace TruthTable
 			return working.Select(l => l.ToArray()).ToArray();
 		}
 
-		private static object[] GenerateValues(Type type, int caseLimit)
+		public static object[] GenerateValues(Type type, int caseLimit)
 		{
 			// get the method we need
 			var method = typeof(TruthTester)
